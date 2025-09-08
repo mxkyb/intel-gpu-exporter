@@ -1,0 +1,8 @@
+[project]
+name = "intel-gpu-exporter"
+version = "0.1.0"
+description = "Simple script to collect Intel GPU metrics for Prometheus"
+requires-python = ">=3.12"
+dependencies = [
+    "prometheus-client>=0.22.1",
+]
