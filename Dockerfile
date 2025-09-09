@@ -1,43 +1,24 @@
-FROM docker.io/library/python:3.13-slim
+FROM python:3.13-slim
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+LABEL org.opencontainers.image.title="intel-gpu-exporter"
+LABEL org.opencontainers.image.authors="Bruce Schultz <bschultz013@gmail.com>"
+LABEL org.opencontainers.image.source="https://github.com/brucetony/intel-gpu-exporter"
 
 ENV \
     DEBCONF_NONINTERACTIVE_SEEN="true" \
     DEBIAN_FRONTEND="noninteractive" \
-    APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE="DontWarn"
-
-ENV \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_ROOT_USER_ACTION=ignore \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_BREAK_SYSTEM_PACKAGES=1 \
+    REFRESH_PERIOD_MS=10000 \
+    DEVICE="" \
     IS_DOCKER=True
 
-WORKDIR /app
+RUN apt-get update && apt-get install --no-install-recommends -y intel-gpu-tools 
 
+WORKDIR /app
 COPY . .
 
-RUN \
-    apt-get update \
-    && \
-    apt-get install --no-install-recommends -y \
-        catatonit \
-        intel-gpu-tools \
-    && pip install --requirement requirements.txt \
-    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
-    && apt-get autoremove -y \
-    && apt-get clean \
-    && rm -rf \
-        /tmp/* \
-        /var/lib/apt/lists/* \
-        /var/cache/apt/* \
-        /var/tmp/*
+RUN uv sync --locked
 
-ENTRYPOINT ["/usr/bin/catatonit", "--", "/usr/local/bin/python"]
-CMD ["/app/intel-gpu-exporter.py"]
-
-LABEL \
-    org.opencontainers.image.title="intel-gpu-exporter" \
-    org.opencontainers.image.authors="Devin Buhl <devin.kray@gmail.com>" \
-    org.opencontainers.image.source="https://github.com/onedr0p/intel-gpu-exporter"
+CMD ["uv", "run", "/app/intel-gpu-exporter.py"]

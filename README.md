@@ -1,22 +1,56 @@
 # intel-gpu-exporter
 
-> [!IMPORTANT]
-> I am no longer using this, and have no plans to continue support. Please consider forking if interested in using.
-
 Get metrics from Intel GPUs
+
+## Installation
+This projects uses `uv` for managing its environment. You can install `uv`, sync the dependencies, and run the script 
+with the following command:
+```bash
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install dependencies
+uv sync --locked
+
+# Run the script
+uv run intel-gpu-exporter.py
+```
+
+### Access to `intel_gpu_top`
+By default, `intel_gpu_top` requires `sudo` access, and the Docker Compose configuration below takes this into account, 
+but if you want to run this locally and without `sudo`, this can be disabled by running the following:
+```bash
+sudo sysctl kernel.perf_event_paranoid=2
+```
+
+| :warning: WARNING                                     |
+|:------------------------------------------------------|
+| This has security implications, use at your own risk! |
+
+Below is a description of the paranoia levels and how they restrict processes from accessing events:
+```bash
+/*
+ * perf event paranoia level:
+ *  -1 - not paranoid at all
+ *   0 - disallow raw tracepoint access for unpriv
+ *   1 - disallow cpu events for unpriv
+ *   2 - disallow kernel profiling for unpriv
+ *   4 - disallow all unpriv perf event use
+ */
+```
+
+More information can be found here: https://www.kernel.org/doc/html/latest/admin-guide/perf-security.html
 
 ## Deployment
 
-Runs on port 8080, does stuff, is hyperglued using python and intel_gpu_top
+Runs on port 8080, gathers metrics using python and intel_gpu_top
 
 ### Docker Compose
 
 ```yaml
-version: "3.8"
-
 services:
   intel-gpu-exporter:
-    image: ghcr.io/onedr0p/intel-gpu-exporter:rolling
+    image: ghcr.io/brucetony/intel-gpu-exporter:rolling
     container_name: intel-gpu-exporter
     restart: unless-stopped
     privileged: true

@@ -1110,8 +1110,8 @@
       {
         "current": {
           "selected": false,
-          "text": "cloud.host.jhofer.local:8081",
-          "value": "cloud.host.jhofer.local:8081"
+          "text": "intel-gpu-exporter:8080",
+          "value": "intel-gpu-exporter:8080"
         },
         "datasource": {
           "type": "prometheus",
