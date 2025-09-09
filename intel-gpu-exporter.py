@@ -105,9 +105,9 @@ if __name__ == "__main__":
     device = os.getenv("DEVICE")
 
     if device:
-        cmd = f"intel_gpu_top -J -c {int(period)} -d {device}"
+        cmd = f"intel_gpu_top -c -s {int(period)} -d {device}"
     else:
-        cmd = f"intel_gpu_top -J -c {int(period)}"
+        cmd = f"intel_gpu_top -c -s {int(period)}"
 
     process = subprocess.Popen(
         cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
