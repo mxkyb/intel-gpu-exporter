@@ -60,54 +60,34 @@ igpu_power_package = Gauge("igpu_power_package", "Package power W")
 igpu_rc6 = Gauge("igpu_rc6", "RC6 %")
 
 
-def update(data):
-    igpu_engines_blitter_0_busy.set(
-        data.get("BCS %", 0)
-    )
-    igpu_engines_blitter_0_sema.set(
-        data.get("BCS se", 0.0)
-    )
-    igpu_engines_blitter_0_wait.set(
-        data.get("BCS wa", 0.0)
-    )
+def update(new_data: dict):
+    igpu_engines_blitter_0_busy.set(new_data.get("BCS %", 0))
+    igpu_engines_blitter_0_sema.set(new_data.get("BCS se", 0.0))
+    igpu_engines_blitter_0_wait.set(new_data.get("BCS wa", 0.0))
 
-    igpu_engines_render_3d_0_busy.set(
-        data.get("RCS %", 0)
-    )
-    igpu_engines_render_3d_0_sema.set(
-        data.get("RCS se", 0.0)
-    )
-    igpu_engines_render_3d_0_wait.set(
-        data.get("RCS wa", 0.0)
-    )
+    igpu_engines_render_3d_0_busy.set(new_data.get("RCS %", 0))
+    igpu_engines_render_3d_0_sema.set(new_data.get("RCS se", 0.0))
+    igpu_engines_render_3d_0_wait.set(new_data.get("RCS wa", 0.0))
 
-    igpu_engines_video_0_busy.set(
-        data.get("VCS %", 0)
-    )
-    igpu_engines_video_0_sema.set(
-        data.get("VCS se", 0.0)
-    )
-    igpu_engines_video_0_wait.set(
-        data.get("VCS wa", 0.0)
-    )
+    igpu_engines_video_0_busy.set(new_data.get("VCS %", 0))
+    igpu_engines_video_0_sema.set(new_data.get("VCS se", 0.0))
+    igpu_engines_video_0_wait.set(new_data.get("VCS wa", 0.0))
 
-    igpu_engines_video_enhance_0_busy.set(
-        data.get("VECS %", 0)
-    )
-    igpu_engines_video_enhance_0_sema.set(data.get("VECS se", 0.0))
+    igpu_engines_video_enhance_0_busy.set(new_data.get("VECS %", 0))
+    igpu_engines_video_enhance_0_sema.set(new_data.get("VECS se", 0.0))
     igpu_engines_video_enhance_0_wait.set(
-        data.get("VECS wa", 0.0)
+        new_data.get("VECS wa", 0.0)
     )
 
-    igpu_frequency_actual.set(data.get("Freq MHz act", 0))
-    igpu_frequency_requested.set(data.get("Freq MHz req", 0))
+    igpu_frequency_actual.set(new_data.get("Freq MHz act", 0))
+    igpu_frequency_requested.set(new_data.get("Freq MHz req", 0))
 
-    igpu_interrupts.set(data.get("IRQ /s", 0))
+    igpu_interrupts.set(new_data.get("IRQ /s", 0))
 
-    igpu_power_gpu.set(data.get("Power W gpu", 0))
-    igpu_power_package.set(data.get("Power W pkg", 0))
+    igpu_power_gpu.set(new_data.get("Power W gpu", 0))
+    igpu_power_package.set(new_data.get("Power W pkg", 0))
 
-    igpu_rc6.set(data.get("RC6 %", 0))
+    igpu_rc6.set(new_data.get("RC6 %", 0))
 
 
 if __name__ == "__main__":
