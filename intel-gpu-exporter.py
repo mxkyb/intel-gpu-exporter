@@ -88,6 +88,20 @@ def update(new_data: dict):
     igpu_power_package.set(new_data.get("Power W pkg", 0))
 
     igpu_rc6.set(new_data.get("RC6 %", 0))
+    
+
+def process_line(line: str):
+    """Process a line of stats from intel_gpu_top."""
+    output = line.decode("utf-8").strip()
+
+    if output == ",".join(header):
+        return
+
+    logging.debug(output)
+    values = [float(val) for val in output.split(",")]
+    data = dict(zip(header, values))
+    update(data)
+    
 
 
 if __name__ == "__main__":
@@ -117,24 +131,12 @@ if __name__ == "__main__":
 
     if os.getenv("IS_DOCKER", False):
         for line in process.stdout:
-            line = line.decode("utf-8").strip()
-            values = [float(val) for val in line.split(",")]
-            logging.debug(values)
-            data = dict(zip(header, values))
-            update(data)
+            process_line(line=line)
 
     else:
         while process.poll() is None:
-            read = process.stdout.readline()
-            output = read.decode("utf-8").strip()
-
-            if output == ",".join(header):
-                continue
-
-            logging.debug(output)
-            values = [float(val) for val in output.split(",")]
-            data = dict(zip(header, values))
-            update(data)
+            line = process.stdout.readline()
+            process_line(line=line)
 
     process.kill()
 
