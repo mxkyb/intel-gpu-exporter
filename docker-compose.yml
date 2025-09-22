@@ -6,12 +6,13 @@ services:
     restart: unless-stopped
     privileged: true
     pid: host
-    ports:
-      - 8080:8080
     environment:
       - DEBUG=1
       - REFRESH_PERIOD_MS=5000
       - DEVICE=drm:/dev/dri/card1
+      - PORT=9200
     volumes:
       - /dev/dri/:/dev/dri/
       - ./intel-gpu-exporter.py:/app/intel-gpu-exporter.py
+    expose:
+      - 9200

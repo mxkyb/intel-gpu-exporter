@@ -138,10 +138,11 @@ if __name__ == "__main__":
 
     logging.basicConfig(format="%(asctime)s - %(message)s", level=loglvl)
 
-    start_http_server(8080)
-
     period = os.getenv("REFRESH_PERIOD_MS", 10000)
     device = os.getenv("DEVICE")
+    port = os.getenv("PORT", 8080)
+
+    start_http_server(port)
 
     if device:
         cmd = f"intel_gpu_top -c -s {int(period)} -d {device}"
