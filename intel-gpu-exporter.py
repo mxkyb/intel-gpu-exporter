@@ -138,9 +138,9 @@ if __name__ == "__main__":
 
     logging.basicConfig(format="%(asctime)s - %(message)s", level=loglvl)
 
-    period = os.getenv("REFRESH_PERIOD_MS", 10000)
+    period = os.getenv("REFRESH_PERIOD_MS", "10000")
     device = os.getenv("DEVICE")
-    port = os.getenv("PORT", 8080)
+    port = int(os.getenv("PORT", "8080"))
 
     start_http_server(port)
 
