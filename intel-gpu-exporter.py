@@ -4,10 +4,8 @@ import subprocess
 
 from prometheus_client import start_http_server, Gauge
 
-header = [
-    "Freq MHz req", "Freq MHz act", "IRQ /s", "RC6 %", "Power W gpu", "Power W pkg", "RCS %", "RCS se", "RCS wa",
-    "BCS %", "BCS se", "BCS wa", "VCS %", "VCS se", "VCS wa", "VECS %", "VECS se", "VECS wa"
-]
+# Dynamic header - will be populated from intel_gpu_top output
+header = []
 
 igpu_engines_blitter_0_busy = Gauge(
     "igpu_engines_blitter_0_busy", "Blitter 0 busy utilisation %"
@@ -59,6 +57,9 @@ igpu_power_package = Gauge("igpu_power_package", "Package power W")
 
 igpu_rc6 = Gauge("igpu_rc6", "RC6 %")
 
+igpu_imc_read = Gauge("igpu_imc_read", "IMC read bandwidth MiB/s")
+igpu_imc_write = Gauge("igpu_imc_write", "IMC write bandwidth MiB/s")
+
 
 def update(new_data: dict):
     igpu_engines_blitter_0_busy.set(new_data.get("BCS %", 0))
@@ -75,9 +76,7 @@ def update(new_data: dict):
 
     igpu_engines_video_enhance_0_busy.set(new_data.get("VECS %", 0))
     igpu_engines_video_enhance_0_sema.set(new_data.get("VECS se", 0.0))
-    igpu_engines_video_enhance_0_wait.set(
-        new_data.get("VECS wa", 0.0)
-    )
+    igpu_engines_video_enhance_0_wait.set(new_data.get("VECS wa", 0.0))
 
     igpu_frequency_actual.set(new_data.get("Freq MHz act", 0))
     igpu_frequency_requested.set(new_data.get("Freq MHz req", 0))
@@ -88,20 +87,46 @@ def update(new_data: dict):
     igpu_power_package.set(new_data.get("Power W pkg", 0))
 
     igpu_rc6.set(new_data.get("RC6 %", 0))
-    
+
+    igpu_imc_read.set(new_data.get("IMC MiB/s rd", 0))
+    igpu_imc_write.set(new_data.get("IMC MiB/s wr", 0))
+
 
 def process_line(line: str):
     """Process a line of stats from intel_gpu_top."""
+    global header
+
     output = line.decode("utf-8").strip()
 
-    if output == ",".join(header):
+    if not output:
+        return
+
+    if not header and any(
+        expected in output for expected in ["Freq MHz", "IRQ /s", "RC6 %"]
+    ):
+        header = [col.strip() for col in output.split(",")]
+        logging.info(f"Detected header: {header}")
+        return
+
+    if not header:
         return
 
     logging.debug(output)
-    values = [float(val) for val in output.split(",")]
-    data = dict(zip(header, values))
-    update(data)
-    
+    logging.debug(",".join(header))
+
+    try:
+        values = [float(val) if val.strip() else 0.0 for val in output.split(",")]
+        if len(values) != len(header):
+            logging.warning(
+                f"Value count mismatch: expected {len(header)}, got {len(values)}"
+            )
+            return
+
+        data = dict(zip(header, values))
+        update(data)
+    except ValueError as e:
+        logging.warning(f"Failed to parse line: {output}, error: {e}")
+        return
 
 
 if __name__ == "__main__":

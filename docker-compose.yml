@@ -1,0 +1,17 @@
+# This docker-compose file is for development purposes
+services:
+  intel-gpu-exporter:
+    build: .
+    container_name: intel-gpu-exporter
+    restart: unless-stopped
+    privileged: true
+    pid: host
+    ports:
+      - 8080:8080
+    environment:
+      - DEBUG=1
+      - REFRESH_PERIOD_MS=5000
+      - DEVICE=drm:/dev/dri/card1
+    volumes:
+      - /dev/dri/:/dev/dri/
+      - ./intel-gpu-exporter.py:/app/intel-gpu-exporter.py
